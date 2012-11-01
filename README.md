@@ -11,10 +11,9 @@ You can find [the latest release at Clojars](https://clojars.org/com.duelinmarke
 Logging is done using [clojure.tools.logging](https://github.com/clojure/tools.logging),
 so you can use any logging framework it supports.
 
-The intention of the design of ring-request-logging is that you can achieve
-everything from reasonable prod logging to the most verbose debug logging by
-just adjusting the log config (as opposed to making code changes and
-reloading).
+The intention of the design is that you can achieve quiet prod logging,
+verbose debug logging, and useful levels in between by adjusting only the log
+config (as opposed to making code changes and reloading).
 
 The logger used is "com.duelinmarkers.ring-request-logging", so that's the
 logger to reconfigure if you want more or less logging.
