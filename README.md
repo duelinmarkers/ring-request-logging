@@ -2,6 +2,8 @@
 
 A [ring](https://github.com/mmcgrana/ring) middleware for logging requests.
 
+You can find [the latest release at Clojars](https://clojars.org/com.duelinmarkers/ring-request-logging).
+
 [![Build Status](https://secure.travis-ci.org/duelinmarkers/ring-request-logging.png)](http://travis-ci.org/duelinmarkers/ring-request-logging)
 
 ## Usage
