@@ -16,7 +16,15 @@
 (defn- inner-wrap [app param-middleware]
   ((apply comp (conj (to-vec param-middleware) wrap-param-logging)) app))
 
-(defn wrap-request-logging [app & {:keys [param-middleware] :or {param-middleware []}}]
+(defn wrap-request-logging
+  "Wraps logging around a ring app.
+
+  options:
+  :param-middleware - a vector of middleware \"wrap-\" fns that will be applied
+    before :params are logged. Examples might include ring's own wrap-params,
+    wrap-keyword-params, wrap-nested-params, and wrap-multipart-params."
+  {:arglists '([app & options])}
+  [app & {:keys [param-middleware] :or {param-middleware []}}]
   (let [param-wrapped-app (inner-wrap app param-middleware)]
     (fn [req]
       (log/info "Request start:" (:request-method req) (:uri req) (:query-string req))
