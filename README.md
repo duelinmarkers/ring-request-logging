@@ -52,6 +52,9 @@ params can still be logged.
 
 See the doc string for `wrap-request-logging` for options.
 
+See [the tests](https://github.com/duelinmarkers/ring-request-logging/blob/master/test/com/duelinmarkers/ring_request_logging_test.clj)
+for details.
+
 ## License
 
 Copyright © 2012 John D. Hume
