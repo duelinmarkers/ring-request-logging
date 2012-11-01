@@ -37,7 +37,8 @@
           (is (= [fake-logger :info nil "Request end: /index.html 200"] (last @log*-args))))))
 
     (testing "Logs that an aleph request is being handled asynchronously in place of an outbound response status"
-      (let [log*-args (atom [])]
+      (let [log*-args (atom [])
+            app (constantly {:aleph.http/ignore true})]
         (with-redefs [logging/log* (args-collector log*-args)]
-          ((subject/wrap-request-logging (constantly {:aleph.http/ignore true})) {:request-method :get})
+          ((subject/wrap-request-logging app) {:request-method :get})
           (is (= [fake-logger :info nil "Request is async"] (last @log*-args))))))))
