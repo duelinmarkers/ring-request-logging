@@ -8,7 +8,9 @@
 
 (defn args-collector [atm] (fn [& args] (swap! atm #(conj % args))))
 
-(defn success-ring-app [req] {:status 200})
+(def success-response {:status 200 :body "Success!"})
+
+(defn success-ring-app [req] success-response)
 
 (def fake-logger (reify
                    Logger
@@ -43,6 +45,17 @@
         (with-redefs [logging/log* (args-collector log*-args)]
           (is (thrown-with-msg? Throwable #"it's me!" ((subject/wrap-request-logging app) {:request-method :get})))
           (is (= [fake-logger :error unhandled-throwable "Unhandled throwable"] (last @log*-args))))))
+
+    (testing "Applies given :param-middleware to extract :params and logs params at debug level"
+      (let [log*-args (atom [])
+            first-param-middleware (fn [app] (fn [req] (app (assoc req :params {"p1" "value"}))))
+            second-param-middleware (fn [app] (fn [req] (app (update-in req [:params "p1"] clojure.string/reverse))))
+            wrapped-app (subject/wrap-request-logging
+                          success-ring-app
+                          :param-middleware [first-param-middleware second-param-middleware])]
+        (with-redefs [logging/log* (args-collector log*-args)]
+          (is (= success-response (wrapped-app {:request-method :get})))
+          (is (= [fake-logger :debug nil ":params {p1 eulav}"] (fnext @log*-args))))))
 
     (testing "Logs that an aleph request is being handled asynchronously in place of an outbound response status"
       (let [log*-args (atom [])
