@@ -2,10 +2,12 @@
 
 A [ring](https://github.com/mmcgrana/ring) middleware for logging requests.
 
-Logging is done using [clojure.tools.logging](https://github.com/clojure/tools.logging),
-so you can use any logging framework it supports.
+[![Build Status](https://secure.travis-ci.org/duelinmarkers/ring-request-logging.png)](http://travis-ci.org/duelinmarkers/ring-request-logging)
 
 ## Usage
+
+Logging is done using [clojure.tools.logging](https://github.com/clojure/tools.logging),
+so you can use any logging framework it supports.
 
 Usage is just like any standard ring middleware.
 
