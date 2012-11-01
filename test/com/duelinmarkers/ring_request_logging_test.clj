@@ -36,6 +36,14 @@
           ((subject/wrap-request-logging success-ring-app) {:request-method :get :uri "/index.html"})
           (is (= [fake-logger :info nil "Request end: /index.html 200"] (last @log*-args))))))
 
+    (testing "Logs and rethrows an unhandled throwable"
+      (let [log*-args (atom [])
+            unhandled-throwable (Throwable. "it's me!")
+            app (fn [_] (throw unhandled-throwable))]
+        (with-redefs [logging/log* (args-collector log*-args)]
+          (is (thrown-with-msg? Throwable #"it's me!" ((subject/wrap-request-logging app) {:request-method :get})))
+          (is (= [fake-logger :error unhandled-throwable "Unhandled throwable"] (last @log*-args))))))
+
     (testing "Logs that an aleph request is being handled asynchronously in place of an outbound response status"
       (let [log*-args (atom [])
             app (constantly {:aleph.http/ignore true})]
