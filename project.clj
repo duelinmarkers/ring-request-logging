@@ -1,4 +1,4 @@
-(defproject com.duelinmarkers/ring-request-logging "0.1.0-SNAPSHOT"
+(defproject com.duelinmarkers/ring-request-logging "0.1.0"
   :description "Ring middleware to log requests and responses"
   :url "http://github.com/duelinmarkers/ring-request-logging"
   :license {:name "Eclipse Public License"
