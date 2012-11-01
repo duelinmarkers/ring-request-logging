@@ -14,6 +14,9 @@ everything from reasonable prod logging to the most verbose debug logging by
 just adjusting the log config (as opposed to making code changes and
 reloading).
 
+The logger used is "com.duelinmarkers.ring-request-logging", so that's the
+logger to reconfigure if you want more or less logging.
+
 The public API is the `wrap-request-logging` function.
 
     (ns example
