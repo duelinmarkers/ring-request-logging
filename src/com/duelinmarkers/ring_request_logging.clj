@@ -22,7 +22,10 @@
   options:
   :param-middleware - a vector of middleware \"wrap-\" fns that will be applied
     before :params are logged. Examples might include ring's own wrap-params,
-    wrap-keyword-params, wrap-nested-params, and wrap-multipart-params."
+    wrap-keyword-params, wrap-nested-params, and wrap-multipart-params.
+  :error-fn - a (fn [ring-request-map unhandled-throwable]) ring-response-map).
+    The default error-fn will re-raise unhandled-throwable to be caught by
+    another middleware or the adapter."
   {:arglists '([app & options])}
   [app & {:keys [param-middleware
                  error-fn]

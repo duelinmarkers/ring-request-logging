@@ -41,8 +41,8 @@ On each request, this middleware will do the following:
 3.  The supplied `:param-middleware` will be run in the provided order.
 4.  The `:params` of the request will be logged at `:debug` level.
 5.  The wrapped app will be invoked.
-6.  Anything thrown by the app will be logged at `:error` level and rethrown
-    (to be caught by surrounding middleware or the adapter).
+6.  Anything thrown by the app will be logged at `:error` level and passed to
+    the supplied `:error-fn`. The default `:error-fn` rethrows.
 7.  Assuming nothing was thrown, the end of each request will be logged at
     `:info` level.
 
