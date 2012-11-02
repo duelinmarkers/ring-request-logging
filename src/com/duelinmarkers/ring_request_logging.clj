@@ -28,6 +28,7 @@
   (let [param-wrapped-app (inner-wrap app param-middleware)]
     (fn [req]
       (log/info "Request start:" (:request-method req) (:uri req) (:query-string req))
+      (log/trace "Request map:" (pr-str req))
       (try
         (let [res (param-wrapped-app req)]
           (if (:aleph.http/ignore res)

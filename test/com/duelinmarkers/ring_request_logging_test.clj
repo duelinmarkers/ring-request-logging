@@ -46,6 +46,12 @@
           (is (thrown-with-msg? Throwable #"it's me!" ((subject/wrap-request-logging app) {:request-method :get})))
           (is (= [fake-logger :error unhandled-throwable "Unhandled throwable"] (last @log*-args))))))
 
+    (testing "Logs entire request map at :trace level"
+      (let [log*-args (atom [])]
+        (with-redefs [logging/log* (args-collector log*-args)]
+          ((subject/wrap-request-logging success-ring-app) {:request-method :get :uri "/index.html"})
+          (is (= [fake-logger :trace nil "Request map: {:request-method :get, :uri \"/index.html\"}"] (fnext @log*-args))))))
+
     (testing "Applies given :param-middleware to extract :params and logs params at debug level"
       (let [log*-args (atom [])
             first-param-middleware (fn [app] (fn [req] (app (assoc req :params {"p1" "value"}))))
@@ -55,7 +61,7 @@
                           :param-middleware [first-param-middleware second-param-middleware])]
         (with-redefs [logging/log* (args-collector log*-args)]
           (is (= success-response (wrapped-app {:request-method :get})))
-          (is (= [fake-logger :debug nil ":params {p1 eulav}"] (fnext @log*-args))))))
+          (is (= [fake-logger :debug nil ":params {p1 eulav}"] (fnext (next @log*-args)))))))
 
     (testing "Logs that an aleph request is being handled asynchronously in place of an outbound response status"
       (let [log*-args (atom [])
