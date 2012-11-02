@@ -38,12 +38,24 @@
           ((subject/wrap-request-logging success-ring-app) {:request-method :get :uri "/index.html"})
           (is (= [fake-logger :info nil "Request end: /index.html 200"] (last @log*-args))))))
 
-    (testing "Logs and rethrows an unhandled throwable"
+    (testing "Logs and rethrows an unhandled throwable by default"
       (let [log*-args (atom [])
             unhandled-throwable (Throwable. "it's me!")
             app (fn [_] (throw unhandled-throwable))]
         (with-redefs [logging/log* (args-collector log*-args)]
           (is (thrown-with-msg? Throwable #"it's me!" ((subject/wrap-request-logging app) {:request-method :get})))
+          (is (= [fake-logger :error unhandled-throwable "Unhandled throwable"] (last @log*-args))))))
+
+    (testing "After logging, uses provided :error-fn for an unhandled throwable"
+      (let [log*-args (atom [])
+            req {:request-method :get}
+            unhandled-throwable (Throwable. "it's me!")
+            app (fn [_] (throw unhandled-throwable))
+            custom-error-handler (fn [& args] (is (= [req unhandled-throwable] args))
+                                   {:status 500 :body "Oops"})
+            wrapped-app (subject/wrap-request-logging app :error-fn custom-error-handler)]
+        (with-redefs [logging/log* (args-collector log*-args)]
+          (is (= {:status 500 :body "Oops"} (wrapped-app req)))
           (is (= [fake-logger :error unhandled-throwable "Unhandled throwable"] (last @log*-args))))))
 
     (testing "Logs entire request map at :trace level"

@@ -24,7 +24,10 @@
     before :params are logged. Examples might include ring's own wrap-params,
     wrap-keyword-params, wrap-nested-params, and wrap-multipart-params."
   {:arglists '([app & options])}
-  [app & {:keys [param-middleware] :or {param-middleware []}}]
+  [app & {:keys [param-middleware
+                 error-fn]
+          :or {param-middleware []
+               error-fn #(throw %2)}}]
   (let [param-wrapped-app (inner-wrap app param-middleware)]
     (fn [req]
       (log/info "Request start:" (:request-method req) (:uri req) (:query-string req))
@@ -37,4 +40,4 @@
           res)
         (catch Throwable t
           (log/error t "Unhandled throwable")
-          (throw t))))))
+          (error-fn req t))))))
