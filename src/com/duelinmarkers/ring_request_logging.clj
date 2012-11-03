@@ -30,6 +30,9 @@
     include ring's own wrap-params, wrap-keyword-params, wrap-nested-params,
     and wrap-multipart-params. To apply multiple param middlewares, compose
     them into one function, e.g., #(-> % wrap-keyword-params wrap-params)
+  :filter-params - a seq of param keys or vectors of nested param keys to hide
+    from the logs. Note that these won't be hidden from trace-level logging of
+    the entire reponse map, only from debug-level logging of params.
   :error-fn - a (fn [ring-request-map unhandled-throwable]) ring-response-map).
     The default error-fn will re-raise unhandled-throwable to be caught by
     another middleware or the adapter."
