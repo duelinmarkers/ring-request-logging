@@ -13,25 +13,24 @@
   [coll]
   (if (vector? coll) coll (vec coll)))
 
-(defn- inner-wrap [app param-middleware]
-  ((apply comp (conj (to-vec param-middleware) wrap-param-logging)) app))
-
 (defn wrap-request-logging
   "Wraps logging around a ring app.
 
   options:
-  :param-middleware - a vector of middleware \"wrap-\" fns that will be applied
-    before :params are logged. Examples might include ring's own wrap-params,
-    wrap-keyword-params, wrap-nested-params, and wrap-multipart-params.
+  :param-middleware - a middleware \"wrap-\" fn that will be applied after the
+    \"Request start\" message but before :params are logged. Examples might
+    include ring's own wrap-params, wrap-keyword-params, wrap-nested-params,
+    and wrap-multipart-params. To apply multiple param middlewares, compose
+    them into one function, e.g., #(-> % wrap-keyword-params wrap-params)
   :error-fn - a (fn [ring-request-map unhandled-throwable]) ring-response-map).
     The default error-fn will re-raise unhandled-throwable to be caught by
     another middleware or the adapter."
   {:arglists '([app & options])}
   [app & {:keys [param-middleware
                  error-fn]
-          :or {param-middleware []
-               error-fn #(throw %2)}}]
-  (let [param-wrapped-app (inner-wrap app param-middleware)]
+          :or {error-fn #(throw %2)}}]
+  (let [param-wrapped-app (wrap-param-logging app)
+        param-wrapped-app (if param-middleware (param-middleware param-wrapped-app) param-wrapped-app)]
     (fn [req]
       (log/info "Request start:" (:request-method req) (:uri req) (:query-string req))
       (log/trace "Request map:" (pr-str req))

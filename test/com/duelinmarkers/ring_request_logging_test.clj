@@ -41,10 +41,10 @@
     (testing "Applies given :param-middleware to extract :params and logs params at debug level"
       (let [log*-args (atom [])
             first-param-middleware (fn [app] (fn [req] (app (assoc req :params {"p1" "value"}))))
-            second-param-middleware (fn [app] (fn [req] (app (update-in req [:params "p1"] clojure.string/reverse))))
+            second-param-middleware (fn [app option] (fn [req] (app (update-in req [:params option] clojure.string/reverse))))
             wrapped-app (wrap-request-logging
                           success-ring-app
-                          :param-middleware [first-param-middleware second-param-middleware])]
+                          :param-middleware #(-> % (second-param-middleware "p1") first-param-middleware))]
         (with-redefs [logging/log* (args-collector log*-args)]
           (is (= success-response (wrapped-app {:request-method :get})))
           (is (= [fake-logger :debug nil ":params {p1 eulav}"] (fnext (next @log*-args)))))))
