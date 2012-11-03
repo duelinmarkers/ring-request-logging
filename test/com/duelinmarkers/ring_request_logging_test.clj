@@ -63,6 +63,21 @@
           (is (thrown-with-msg? Throwable #"it's me!" ((wrap-request-logging app) {:request-method :get})))
           (is (= [fake-logger :error unhandled-throwable "Unhandled throwable"] (last @log*-args))))))))
 
+(deftest param-filtering
+  (binding [logging/*logger-factory* fake-logger-factory]
+
+    (testing "Filters specified :params"
+      (let [log*-args (atom [])
+            raw-params {"p1" "value" "p2" {"nested" "secret"} "p3" "also secret"}
+            param-middleware (fn [app] (fn [req] (app (assoc req :params raw-params))))
+            wrapped-app (wrap-request-logging success-ring-app
+                                              :param-middleware param-middleware
+                                              :filter-params ["p3" "extra" ["p2" "nested"] ["extra" "vec"]])]
+        (with-redefs [logging/log* (args-collector log*-args)]
+          (wrapped-app {:request-method :get})
+          (is (= [fake-logger :debug nil ":params {p1 value, p2 {nested [FILTERED]}, p3 [FILTERED]}"]
+                 (fnext (next @log*-args)))))))))
+
 (deftest error-fn-option
   (binding [logging/*logger-factory* fake-logger-factory]
 

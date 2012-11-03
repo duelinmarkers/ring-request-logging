@@ -3,9 +3,17 @@
 (ns com.duelinmarkers.ring-request-logging
   (:require [clojure.tools.logging :as log]))
 
-(defn- wrap-param-logging [app]
+(defn- filtered-params [params to-filter]
+  (reduce
+    #(if (vector? %2)
+       (if (get-in %1 %2) (assoc-in %1 %2 "[FILTERED]") %1)
+       (if (get %1 %2) (assoc %1 %2 "[FILTERED]") %1))
+    params
+    to-filter))
+
+(defn- wrap-param-logging [app to-filter]
   (fn [req]
-    (log/debug :params (:params req))
+    (log/debug :params (filtered-params (:params req) to-filter))
     (app req)))
 
 (defn- to-vec
@@ -27,9 +35,11 @@
     another middleware or the adapter."
   {:arglists '([app & options])}
   [app & {:keys [param-middleware
+                 filter-params
                  error-fn]
-          :or {error-fn #(throw %2)}}]
-  (let [param-wrapped-app (wrap-param-logging app)
+          :or {filter-params []
+               error-fn #(throw %2)}}]
+  (let [param-wrapped-app (wrap-param-logging app filter-params)
         param-wrapped-app (if param-middleware (param-middleware param-wrapped-app) param-wrapped-app)]
     (fn [req]
       (log/info "Request start:" (:request-method req) (:uri req) (:query-string req))
