@@ -15,12 +15,10 @@
 (def fake-logger (reify
                    Logger
                    (enabled? [_ _] true)
-                   (write! [_ _ _ _] (throw (UnsupportedOperationException.)))
                    Object
                    (toString [_] "fake-logger")))
 
 (def fake-logger-factory (reify LoggerFactory
-                           (name [_] "fake-logger-factory")
                            (get-logger [_ logger-ns] fake-logger)))
 
 (deftest basic-functionality
